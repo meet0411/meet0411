@@ -1,0 +1,30 @@
+name: Dynamic Profile Terminal Updater
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'   # Runs every 12 hours
+  workflow_dispatch:           # Can also be triggered manually from Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Execute Update Script
+        run: python update_status.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git diff-index --quiet HEAD || git commit -m "chore: automated terminal status sync [skip ci]"
+          git push
